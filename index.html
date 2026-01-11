@@ -90,8 +90,8 @@
             </div>
 
             <div class="flex flex-col items-center mb-8">
-                <div class="w-16 h-16 bg-gradient-to-br from-blue-600 to-cyan-400 rounded-2xl flex items-center justify-center shadow-2xl shadow-blue-500/30 mb-4">
-                    <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2-2v4" /></svg>
+                <div class="w-20 h-20 bg-white/5 rounded-3xl flex items-center justify-center shadow-2xl shadow-blue-500/10 mb-4 p-2 border border-white/10 overflow-hidden">
+                    <img src="https://i.ibb.co/GjVYdyn/PRINTVISIONLOGO.png" alt="PRINT VISION LOGO" class="w-full h-full object-contain">
                 </div>
                 <h1 class="text-2xl font-black text-white tracking-tighter text-center">PRINT VISION</h1>
                 <p id="appSubtitle" class="text-[10px] text-blue-400 font-bold uppercase tracking-[0.3em]">Advanced Name Tag Maker</p>
@@ -203,7 +203,7 @@
                             <p id="totalTagsCount" class="text-blue-400 font-black text-2xl">0</p>
                         </div>
                         <div class="text-center">
-                            <p id="lblTotalPages" class="text-[9px] font-black text-slate-500 uppercase tracking-widest mb-1">A4 Pages</p>
+                            <p id="lblTotalPages" class="text-[9px] font-black text-slate-500 uppercase tracking-widest mb-1">Pages</p>
                             <p id="totalPagesCount" class="text-blue-400 font-black text-2xl">0</p>
                         </div>
                     </div>
@@ -480,22 +480,22 @@
                 <div class="tag-card" style="width: ${widthIn}in; height: ${heightIn}in; background-color: ${colors.background}; border-color: ${colors.border};">
                     <div class="flex items-center justify-center gap-2 h-8 border-b border-dashed mb-1" style="border-color: ${colors.border}40">
                         ${state.schoolLogo ? `<img src="${state.schoolLogo}" class="h-7 w-7 object-contain" style="filter: ${logoFilter}">` : ''}
-                        <div style="color: ${colors.schoolName}; font-size: 8px; font-weight: 700; line-height: 1;" class="uppercase flex-1">
+                        <div style="color: ${colors.schoolName}; font-size: 8px; font-weight: 700; line-height: 1;" class="uppercase flex-1 text-center">
                             ${state.schoolName || (state.lang === 'en' ? 'YOUR SCHOOL NAME' : 'පාසලේ නම')}
                         </div>
                     </div>
-                    <div class="flex-1 flex flex-col justify-center items-center">
-                        <div style="color: ${colors.studentName}; font-size: 22px; font-weight: 900; line-height: 1.1;" class="uppercase w-full break-words">
+                    <div class="flex-1 flex flex-col justify-center items-center overflow-hidden">
+                        <div style="color: ${colors.studentName}; font-size: 20px; font-weight: 900; line-height: 1.1;" class="uppercase w-full break-words">
                             ${state.studentName || (state.lang === 'en' ? 'STUDENT NAME' : 'ශිෂ්‍යයාගේ නම')}
                         </div>
                     </div>
                     <div class="py-1">
-                        <div style="color: ${colors.grade}; font-size: 16px; font-weight: 700; letter-spacing: 0.1em;" class="uppercase">
+                        <div style="color: ${colors.grade}; font-size: 15px; font-weight: 700; letter-spacing: 0.1em;" class="uppercase">
                             ${state.grade ? (state.lang === 'en' ? 'GRADE ' + state.grade : 'ශ්‍රේණිය ' + state.grade) : (state.lang === 'en' ? 'GRADE' : 'ශ්‍රේණිය')}
                         </div>
                     </div>
                     <div class="mt-auto pt-1 border-t-2" style="border-color: ${colors.border};">
-                        <div style="color: ${colors.subject}; font-size: 18px; font-weight: 800; letter-spacing: 0.05em;" class="uppercase">
+                        <div style="color: ${colors.subject}; font-size: 17px; font-weight: 800; letter-spacing: 0.05em;" class="uppercase truncate">
                             ${subject || (state.lang === 'en' ? 'SUBJECT' : 'විෂය')}
                         </div>
                     </div>
