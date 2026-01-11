@@ -7,10 +7,10 @@
     <title>PRINT VISION - NAME TAG MAKER</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&family=Noto+Sans+Sinhala:wght@400;700;900&display=swap');
         
         body {
-            font-family: 'Inter', sans-serif;
+            font-family: 'Inter', 'Noto Sans Sinhala', sans-serif;
             background-color: #020617;
             color: #f8fafc;
         }
@@ -22,14 +22,9 @@
             border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
-        .tag-preview-container {
-            perspective: 1000px;
-        }
-
-        /* A4 Print Styles */
+        /* A4/Page Print Styles */
         @media print {
             @page {
-                size: A4;
                 margin: 0;
             }
             body {
@@ -43,7 +38,7 @@
                 display: block !important;
                 background: white !important;
             }
-            .a4-page {
+            .page-sheet {
                 margin: 0 !important;
                 box-shadow: none !important;
                 border: none !important;
@@ -51,25 +46,20 @@
             }
         }
 
-        .a4-page {
-            width: 210mm;
-            min-height: 297mm;
+        .page-sheet {
             background: white;
             padding: 10mm;
             margin: 20px auto;
             box-shadow: 0 0 20px rgba(0,0,0,0.5);
             display: grid;
-            grid-template-columns: repeat(2, 3.5in);
-            grid-template-rows: repeat(5, 2in);
-            gap: 10mm;
+            gap: 5mm;
             justify-content: center;
             align-content: flex-start;
             color: black;
+            overflow: hidden;
         }
 
         .tag-card {
-            width: 3.5in;
-            height: 2in;
             border: 3px solid #000;
             background: #fff;
             padding: 10px;
@@ -91,34 +81,70 @@
     <div id="app" class="flex flex-col lg:flex-row min-h-screen">
         <!-- SIDEBAR -->
         <aside class="no-print w-full lg:w-[420px] glass border-r border-white/10 p-6 overflow-y-auto max-h-screen sticky top-0 z-50">
+            <!-- Language Switcher -->
+            <div class="flex justify-end mb-4">
+                <select id="langSelect" class="bg-white/5 border border-white/10 rounded-lg px-2 py-1 text-[10px] font-bold text-blue-400 outline-none cursor-pointer hover:bg-white/10 transition-all uppercase tracking-widest">
+                    <option value="en">English</option>
+                    <option value="si">සිංහල</option>
+                </select>
+            </div>
+
             <div class="flex flex-col items-center mb-8">
                 <div class="w-16 h-16 bg-gradient-to-br from-blue-600 to-cyan-400 rounded-2xl flex items-center justify-center shadow-2xl shadow-blue-500/30 mb-4">
                     <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2-2v4" /></svg>
                 </div>
                 <h1 class="text-2xl font-black text-white tracking-tighter text-center">PRINT VISION</h1>
-                <p class="text-[10px] text-blue-400 font-bold uppercase tracking-[0.3em]">Advanced Name Tag Maker</p>
+                <p id="appSubtitle" class="text-[10px] text-blue-400 font-bold uppercase tracking-[0.3em]">Advanced Name Tag Maker</p>
             </div>
 
             <div class="space-y-6">
-                <!-- School Selection -->
-                <div class="space-y-3">
-                    <label class="text-[11px] font-black text-slate-500 uppercase tracking-widest">Select School Preset</label>
-                    <div class="grid grid-cols-1 gap-2" id="schoolPresets">
-                        <!-- Presets injected here -->
+                <!-- Tag Dimensions -->
+                <div class="space-y-3 pt-4 border-t border-white/5">
+                    <label id="lblTagDimensions" class="text-[11px] font-black text-slate-500 uppercase tracking-widest">Tag Dimensions (Inches)</label>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div class="space-y-1">
+                            <span class="text-[9px] text-slate-500 font-bold uppercase">Width</span>
+                            <input type="number" id="tagWidth" value="3.5" step="0.1" class="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-xs outline-none focus:ring-1 focus:ring-blue-500">
+                        </div>
+                        <div class="space-y-1">
+                            <span class="text-[9px] text-slate-500 font-bold uppercase">Height</span>
+                            <input type="number" id="tagHeight" value="2.0" step="0.1" class="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-xs outline-none focus:ring-1 focus:ring-blue-500">
+                        </div>
                     </div>
+                </div>
+
+                <!-- Page Settings -->
+                <div class="space-y-3 pt-4 border-t border-white/5">
+                    <label id="lblPageSettings" class="text-[11px] font-black text-slate-500 uppercase tracking-widest">Page Settings</label>
+                    <div class="grid grid-cols-2 gap-3">
+                        <select id="pageSize" class="bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-xs text-white outline-none cursor-pointer">
+                            <option value="A4">A4</option>
+                            <option value="Letter">Letter</option>
+                        </select>
+                        <select id="pageOrientation" class="bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-xs text-white outline-none cursor-pointer">
+                            <option value="portrait">Portrait</option>
+                            <option value="landscape">Landscape</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- School Selection -->
+                <div class="space-y-3 pt-4 border-t border-white/5">
+                    <label id="lblSelectSchool" class="text-[11px] font-black text-slate-500 uppercase tracking-widest">Select School Preset</label>
+                    <div class="grid grid-cols-1 gap-2" id="schoolPresets"></div>
                 </div>
 
                 <!-- Manual Details -->
                 <div class="space-y-4 pt-4 border-t border-white/5">
-                    <label class="text-[11px] font-black text-slate-500 uppercase tracking-widest">Student Information</label>
+                    <label id="lblStudentInfo" class="text-[11px] font-black text-slate-500 uppercase tracking-widest">Student Information</label>
                     <input type="text" id="inputName" placeholder="STUDENT FULL NAME" class="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none text-white font-bold placeholder:text-slate-600 transition-all">
-                    <input type="text" id="inputGrade" placeholder="GRADE / CLASS (e.g. 10-A)" class="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none text-white font-bold placeholder:text-slate-600 transition-all">
+                    <input type="text" id="inputGrade" placeholder="GRADE / CLASS" class="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none text-white font-bold placeholder:text-slate-600 transition-all">
                     <input type="text" id="inputSchoolName" placeholder="CUSTOM SCHOOL NAME" class="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none text-white font-bold placeholder:text-slate-600 transition-all">
                     
                     <div class="flex gap-2">
                         <button id="uploadBtn" class="flex-1 px-4 py-3 bg-white/10 hover:bg-white/20 border border-white/10 rounded-xl text-xs font-bold text-white flex items-center justify-center gap-2 transition-all">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1m-4-8l-4-4m0 0L8 8m4-4v12" /></svg>
-                            Upload School Logo
+                            <span id="txtUploadLogo">Upload School Logo</span>
                         </button>
                         <input type="file" id="logoFile" hidden accept="image/*">
                     </div>
@@ -127,12 +153,10 @@
                 <!-- Subjects -->
                 <div class="space-y-4 pt-4 border-t border-white/5">
                     <div class="flex justify-between items-center">
-                        <label class="text-[11px] font-black text-slate-500 uppercase tracking-widest">Core Subjects</label>
-                        <span class="text-[9px] bg-blue-500/20 text-blue-400 px-2 py-0.5 rounded font-bold">CLICK TO ADD</span>
+                        <label id="lblCoreSubjects" class="text-[11px] font-black text-slate-500 uppercase tracking-widest">Core Subjects</label>
+                        <span id="txtClickAdd" class="text-[9px] bg-blue-500/20 text-blue-400 px-2 py-0.5 rounded font-bold">CLICK TO ADD</span>
                     </div>
-                    <div class="grid grid-cols-2 gap-2" id="subjectsGrid">
-                        <!-- Subjects injected here -->
-                    </div>
+                    <div class="grid grid-cols-2 gap-2" id="subjectsGrid"></div>
 
                     <div class="flex gap-2 mt-2">
                         <input type="text" id="customSubjectInput" placeholder="Add Custom..." class="flex-1 px-4 py-2 bg-white/5 border border-white/10 rounded-xl text-white text-sm outline-none">
@@ -148,24 +172,21 @@
                         <button id="modeColor" class="flex-1 py-2 text-[10px] font-bold uppercase rounded-lg bg-blue-600 text-white transition-all">Color</button>
                         <button id="modeGray" class="flex-1 py-2 text-[10px] font-bold uppercase rounded-lg text-slate-500 hover:text-white transition-all">B&W</button>
                     </div>
-                    
-                    <div id="colorControls" class="grid grid-cols-3 gap-3">
-                        <!-- Color dots injected here -->
-                    </div>
+                    <div id="colorControls" class="grid grid-cols-3 gap-3"></div>
                 </div>
 
                 <!-- Action Buttons -->
                 <div class="grid grid-cols-2 gap-3 pt-6 border-t border-white/10">
                     <button onclick="window.print()" class="py-4 bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 text-white font-black uppercase tracking-widest rounded-2xl shadow-xl shadow-blue-500/20 transition-all flex items-center justify-center gap-2 active:scale-95">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2-2v4" /></svg>
-                        Print
+                        <span id="txtPrint">Print</span>
                     </button>
                     <button onclick="window.print()" class="py-4 bg-gradient-to-r from-indigo-600 to-indigo-500 hover:from-indigo-500 hover:to-indigo-400 text-white font-black uppercase tracking-widest rounded-2xl shadow-xl shadow-indigo-500/20 transition-all flex items-center justify-center gap-2 active:scale-95">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
-                        Download
+                        <span id="txtDownload">Download</span>
                     </button>
                 </div>
-                <button id="clearBtn" class="w-full text-slate-600 hover:text-red-400 text-[10px] font-bold uppercase transition-all">Clear All Tags</button>
+                <button id="clearBtn" class="w-full text-slate-600 hover:text-red-400 text-[10px] font-bold uppercase transition-all mt-4">Clear All Tags</button>
             </div>
         </aside>
 
@@ -174,47 +195,81 @@
             <div class="no-print max-w-4xl mx-auto">
                 <!-- LIVE PREVIEW CARD -->
                 <div class="glass rounded-[3rem] p-8 lg:p-12 mb-12 flex flex-col items-center">
-                    <h2 class="text-white/30 text-[10px] font-black uppercase tracking-[0.5em] mb-12">LIVE GENERATOR VISUALISER</h2>
-                    <div id="livePreviewWrapper" class="shadow-[0_0_100px_rgba(37,99,235,0.2)] rounded-sm overflow-hidden border border-white/10">
-                        <!-- Live tag rendered here -->
-                    </div>
+                    <h2 id="lblVisualiser" class="text-white/30 text-[10px] font-black uppercase tracking-[0.5em] mb-12">LIVE GENERATOR VISUALISER</h2>
+                    <div id="livePreviewWrapper" class="shadow-[0_0_100px_rgba(37,99,235,0.2)] rounded-sm overflow-hidden border border-white/10"></div>
                     <div class="mt-8 flex gap-8">
                         <div class="text-center">
-                            <p class="text-[9px] font-black text-slate-500 uppercase tracking-widest mb-1">Total Tags</p>
+                            <p id="lblTotalTags" class="text-[9px] font-black text-slate-500 uppercase tracking-widest mb-1">Total Tags</p>
                             <p id="totalTagsCount" class="text-blue-400 font-black text-2xl">0</p>
                         </div>
                         <div class="text-center">
-                            <p class="text-[9px] font-black text-slate-500 uppercase tracking-widest mb-1">A4 Pages</p>
+                            <p id="lblTotalPages" class="text-[9px] font-black text-slate-500 uppercase tracking-widest mb-1">A4 Pages</p>
                             <p id="totalPagesCount" class="text-blue-400 font-black text-2xl">0</p>
                         </div>
                     </div>
                 </div>
 
-                <!-- SELECTION SUMMARY -->
                 <div id="emptyState" class="h-64 glass rounded-[2rem] flex flex-col items-center justify-center border-2 border-dashed border-white/5 text-slate-600">
                     <svg class="w-16 h-16 mb-4 opacity-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 13h6m-3-3v6m5 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
-                    <p class="font-bold uppercase tracking-widest text-xs">No Tags Selected</p>
+                    <p id="txtNoTags" class="font-bold uppercase tracking-widest text-xs">No Tags Selected</p>
                 </div>
             </div>
 
             <!-- PRINT DOCUMENT -->
-            <div id="printArea" class="print-area">
-                <!-- A4 pages injected here -->
-            </div>
+            <div id="printArea" class="print-area"></div>
         </main>
     </div>
 
     <script>
-        // --- CONSTANTS & DATA ---
+        // --- TRANSLATIONS ---
+        const I18N = {
+            en: {
+                appSubtitle: "Advanced Name Tag Maker",
+                lblTagDimensions: "Tag Dimensions (Inches)",
+                lblPageSettings: "Page Settings",
+                lblSelectSchool: "Select School Preset",
+                lblStudentInfo: "Student Information",
+                txtUploadLogo: "Upload School Logo",
+                lblCoreSubjects: "Core Subjects",
+                txtClickAdd: "CLICK TO ADD",
+                txtPrint: "Print",
+                txtDownload: "Download",
+                lblVisualiser: "LIVE GENERATOR VISUALISER",
+                lblTotalTags: "Total Tags",
+                lblTotalPages: "Pages",
+                txtNoTags: "No Tags Selected",
+                phName: "STUDENT FULL NAME",
+                phGrade: "GRADE / CLASS",
+                phSchool: "CUSTOM SCHOOL NAME",
+                phCustomSub: "Add Custom...",
+                subjects: ['Religion', 'Mathematics', 'Science', 'English', 'Sinhala', 'Tamil', 'History', 'Geography', 'Buddhism', 'Hinduism', 'Islam', 'Christianity', 'Civics', 'Health & PE', 'Art', 'Music', 'Dancing', 'ICT', 'Accounting', 'Business Studies', 'Economics']
+            },
+            si: {
+                appSubtitle: "උසස් නාම පත්‍ර සාදන්නා",
+                lblTagDimensions: "පත්‍රිකා මානයන් (අඟල්)",
+                lblPageSettings: "පිටු සැකසුම්",
+                lblSelectSchool: "පාසල තෝරන්න",
+                lblStudentInfo: "ශිෂ්‍ය තොරතුරු",
+                txtUploadLogo: "ලංඡනය එක් කරන්න",
+                lblCoreSubjects: "ප්‍රධාන විෂයන්",
+                txtClickAdd: "එක් කිරීමට ක්ලික් කරන්න",
+                txtPrint: "මුද්‍රණය",
+                txtDownload: "බාගත කරන්න",
+                lblVisualiser: "සජීවී දසුන",
+                lblTotalTags: "මුළු පත්‍රිකා",
+                lblTotalPages: "පිටු ගණන",
+                txtNoTags: "පත්‍රිකා තෝරා නොමැත",
+                phName: "ශිෂ්‍යයාගේ සම්පූර්ණ නම",
+                phGrade: "ශ්‍රේණිය / පන්තිය",
+                phSchool: "පාසලේ නම",
+                phCustomSub: "වෙනත් විෂයන්...",
+                subjects: ['ආගම', 'ගණිතය', 'විද්‍යාව', 'ඉංග්‍රීසි', 'සිංහල', 'දෙමළ', 'ඉතිහාසය', 'භූගෝල විද්‍යාව', 'බුද්ධ ධර්මය', 'හින්දු ආගම', 'ඉස්ලාම් ආගම', 'ක්‍රිස්තියානි ආගම', 'පුරවැසි අධ්‍යාපනය', 'සෞඛ්‍ය හා ශාරීරික', 'චිත්‍ර', 'සංගීතය', 'නර්තනය', 'තොරතුරු තාක්ෂණය', 'ගිණුම්කරණය', 'ව්‍යාපාර අධ්‍යයනය', 'ආර්ථික විද්‍යාව']
+            }
+        };
+
         const PRESET_SCHOOLS = [
             { id: 'dns', name: 'Dhammissara College Nattandiya', logo: 'https://i.ibb.co/sp3kPLDj/cropped-dns-logo.png' },
             { id: 'jp2', name: 'St John Paul II Cambridge College, Wennappuwa', logo: 'https://i.ibb.co/yD3BCt1/John-paul.png' }
-        ];
-
-        const SUBJECTS = [
-            'Religion', 'Mathematics', 'Science', 'English', 'Sinhala', 'Tamil', 'History', 'Geography', 
-            'Buddhism', 'Hinduism', 'Islam', 'Christianity', 'Civics', 'Health & PE', 'Art', 
-            'Music', 'Dancing', 'ICT', 'Accounting', 'Business Studies', 'Economics'
         ];
 
         const DEFAULT_COLORS = {
@@ -235,22 +290,46 @@
             grade: '#000000'
         };
 
-        // --- STATE ---
+        const PAGE_SIZES = {
+            A4: { w: 210, h: 297 }, // mm
+            Letter: { w: 215.9, h: 279.4 } // mm
+        };
+
         let state = {
+            lang: 'en',
             studentName: '',
             grade: '',
             schoolName: '',
             schoolLogo: null,
-            mode: 'color', // 'color' | 'grayscale'
+            mode: 'color',
             colors: { ...DEFAULT_COLORS },
-            selectedSubjects: []
+            selectedSubjects: [],
+            tagWidth: 3.5,
+            tagHeight: 2.0,
+            pageSize: 'A4',
+            pageOrientation: 'portrait'
         };
 
-        // --- DOM ELEMENTS ---
         const els = {
+            langSelect: document.getElementById('langSelect'),
+            appSubtitle: document.getElementById('appSubtitle'),
+            lblTagDimensions: document.getElementById('lblTagDimensions'),
+            lblPageSettings: document.getElementById('lblPageSettings'),
+            lblSelectSchool: document.getElementById('lblSelectSchool'),
+            lblStudentInfo: document.getElementById('lblStudentInfo'),
+            txtUploadLogo: document.getElementById('txtUploadLogo'),
+            lblCoreSubjects: document.getElementById('lblCoreSubjects'),
+            txtClickAdd: document.getElementById('txtClickAdd'),
+            txtPrint: document.getElementById('txtPrint'),
+            txtDownload: document.getElementById('txtDownload'),
+            lblVisualiser: document.getElementById('lblVisualiser'),
+            lblTotalTags: document.getElementById('lblTotalTags'),
+            lblTotalPages: document.getElementById('lblTotalPages'),
+            txtNoTags: document.getElementById('txtNoTags'),
             inputName: document.getElementById('inputName'),
             inputGrade: document.getElementById('inputGrade'),
             inputSchoolName: document.getElementById('inputSchoolName'),
+            customSubjectInput: document.getElementById('customSubjectInput'),
             logoFile: document.getElementById('logoFile'),
             uploadBtn: document.getElementById('uploadBtn'),
             schoolPresets: document.getElementById('schoolPresets'),
@@ -261,24 +340,48 @@
             totalTagsCount: document.getElementById('totalTagsCount'),
             totalPagesCount: document.getElementById('totalPagesCount'),
             emptyState: document.getElementById('emptyState'),
-            customSubjectInput: document.getElementById('customSubjectInput'),
             addCustomSubject: document.getElementById('addCustomSubject'),
             modeColor: document.getElementById('modeColor'),
             modeGray: document.getElementById('modeGray'),
-            clearBtn: document.getElementById('clearBtn')
+            clearBtn: document.getElementById('clearBtn'),
+            tagWidth: document.getElementById('tagWidth'),
+            tagHeight: document.getElementById('tagHeight'),
+            pageSize: document.getElementById('pageSize'),
+            pageOrientation: document.getElementById('pageOrientation')
         };
 
-        // --- INITIALIZATION ---
         function init() {
-            renderSubjectButtons();
+            renderLanguage();
             renderSchoolPresets();
             renderColorControls();
             attachListeners();
             update();
         }
 
-        function renderSubjectButtons() {
-            els.subjectsGrid.innerHTML = SUBJECTS.map(sub => `
+        function renderLanguage() {
+            const strings = I18N[state.lang];
+            els.appSubtitle.innerText = strings.appSubtitle;
+            els.lblTagDimensions.innerText = strings.lblTagDimensions;
+            els.lblPageSettings.innerText = strings.lblPageSettings;
+            els.lblSelectSchool.innerText = strings.lblSelectSchool;
+            els.lblStudentInfo.innerText = strings.lblStudentInfo;
+            els.txtUploadLogo.innerText = strings.txtUploadLogo;
+            els.lblCoreSubjects.innerText = strings.lblCoreSubjects;
+            els.txtClickAdd.innerText = strings.txtClickAdd;
+            els.txtPrint.innerText = strings.txtPrint;
+            els.txtDownload.innerText = strings.txtDownload;
+            els.lblVisualiser.innerText = strings.lblVisualiser;
+            els.lblTotalTags.innerText = strings.lblTotalTags;
+            els.lblTotalPages.innerText = strings.lblTotalPages;
+            els.txtNoTags.innerText = strings.txtNoTags;
+            
+            els.inputName.placeholder = strings.phName;
+            els.inputGrade.placeholder = strings.phGrade;
+            els.inputSchoolName.placeholder = strings.phSchool;
+            els.customSubjectInput.placeholder = strings.phCustomSub;
+
+            // Render subjects with correct language
+            els.subjectsGrid.innerHTML = strings.subjects.map(sub => `
                 <button class="subject-btn px-3 py-2 text-[10px] font-black uppercase bg-white/5 border border-white/5 rounded-lg hover:border-blue-500 hover:bg-blue-600/20 transition-all text-slate-400 hover:text-white truncate" data-sub="${sub}">
                     ${sub}
                 </button>
@@ -295,10 +398,7 @@
         }
 
         function renderColorControls() {
-            const labels = {
-                background: 'BG', border: 'Border', schoolName: 'Sch', 
-                subject: 'Subj', studentName: 'Name', grade: 'Grade'
-            };
+            const labels = { background: 'BG', border: 'Border', schoolName: 'Sch', subject: 'Subj', studentName: 'Name', grade: 'Grade' };
             els.colorControls.innerHTML = Object.keys(DEFAULT_COLORS).map(key => `
                 <div class="flex flex-col items-center gap-1">
                     <div class="relative w-8 h-8 rounded-full border-2 border-white/20 overflow-hidden shadow-inner cursor-pointer">
@@ -310,9 +410,14 @@
         }
 
         function attachListeners() {
+            els.langSelect.onchange = e => { state.lang = e.target.value; renderLanguage(); update(); };
             els.inputName.oninput = e => { state.studentName = e.target.value; update(); };
             els.inputGrade.oninput = e => { state.grade = e.target.value; update(); };
             els.inputSchoolName.oninput = e => { state.schoolName = e.target.value; update(); };
+            els.tagWidth.oninput = e => { state.tagWidth = parseFloat(e.target.value) || 3.5; update(); };
+            els.tagHeight.oninput = e => { state.tagHeight = parseFloat(e.target.value) || 2.0; update(); };
+            els.pageSize.onchange = e => { state.pageSize = e.target.value; update(); };
+            els.pageOrientation.onchange = e => { state.pageOrientation = e.target.value; update(); };
             
             els.uploadBtn.onclick = () => els.logoFile.click();
             els.logoFile.onchange = e => {
@@ -365,32 +470,33 @@
             els.clearBtn.onclick = () => { state.selectedSubjects = []; update(); };
         }
 
-        // --- RENDER LOGIC ---
         function createTagHTML(subject) {
             const colors = state.mode === 'grayscale' ? GRAY_COLORS : state.colors;
             const logoFilter = state.mode === 'grayscale' ? 'grayscale(100%)' : 'none';
+            const widthIn = state.tagWidth;
+            const heightIn = state.tagHeight;
             
             return `
-                <div class="tag-card" style="background-color: ${colors.background}; border-color: ${colors.border};">
+                <div class="tag-card" style="width: ${widthIn}in; height: ${heightIn}in; background-color: ${colors.background}; border-color: ${colors.border};">
                     <div class="flex items-center justify-center gap-2 h-8 border-b border-dashed mb-1" style="border-color: ${colors.border}40">
                         ${state.schoolLogo ? `<img src="${state.schoolLogo}" class="h-7 w-7 object-contain" style="filter: ${logoFilter}">` : ''}
                         <div style="color: ${colors.schoolName}; font-size: 8px; font-weight: 700; line-height: 1;" class="uppercase flex-1">
-                            ${state.schoolName || 'YOUR SCHOOL NAME'}
+                            ${state.schoolName || (state.lang === 'en' ? 'YOUR SCHOOL NAME' : 'පාසලේ නම')}
                         </div>
                     </div>
                     <div class="flex-1 flex flex-col justify-center items-center">
                         <div style="color: ${colors.studentName}; font-size: 22px; font-weight: 900; line-height: 1.1;" class="uppercase w-full break-words">
-                            ${state.studentName || 'STUDENT NAME'}
+                            ${state.studentName || (state.lang === 'en' ? 'STUDENT NAME' : 'ශිෂ්‍යයාගේ නම')}
                         </div>
                     </div>
                     <div class="py-1">
                         <div style="color: ${colors.grade}; font-size: 16px; font-weight: 700; letter-spacing: 0.1em;" class="uppercase">
-                            ${state.grade ? 'GRADE ' + state.grade : 'GRADE'}
+                            ${state.grade ? (state.lang === 'en' ? 'GRADE ' + state.grade : 'ශ්‍රේණිය ' + state.grade) : (state.lang === 'en' ? 'GRADE' : 'ශ්‍රේණිය')}
                         </div>
                     </div>
                     <div class="mt-auto pt-1 border-t-2" style="border-color: ${colors.border};">
                         <div style="color: ${colors.subject}; font-size: 18px; font-weight: 800; letter-spacing: 0.05em;" class="uppercase">
-                            ${subject || 'SUBJECT'}
+                            ${subject || (state.lang === 'en' ? 'SUBJECT' : 'විෂය')}
                         </div>
                     </div>
                     <div class="absolute top-0 right-0 w-6 h-6 opacity-10" style="background: linear-gradient(135deg, transparent 50%, ${colors.border} 50%);"></div>
@@ -400,18 +506,28 @@
 
         function update() {
             // Update UI State
-            els.modeColor.className = `flex-1 py-2 text-[10px] font-bold uppercase rounded-lg transition-all ${state.mode === 'color' ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/20' : 'text-slate-500 hover:text-white'}`;
+            els.modeColor.className = `flex-1 py-2 text-[10px] font-bold uppercase rounded-lg transition-all ${state.mode === 'color' ? 'bg-blue-600 text-white shadow-lg' : 'text-slate-500 hover:text-white'}`;
             els.modeGray.className = `flex-1 py-2 text-[10px] font-bold uppercase rounded-lg transition-all ${state.mode === 'grayscale' ? 'bg-slate-700 text-white shadow-lg' : 'text-slate-500 hover:text-white'}`;
             
-            // Render Live Preview
-            const previewSubject = state.selectedSubjects.length > 0 ? state.selectedSubjects[state.selectedSubjects.length - 1] : 'PREVIEW SUBJECT';
+            // Live Preview
+            const previewSubject = state.selectedSubjects.length > 0 ? state.selectedSubjects[state.selectedSubjects.length - 1] : (state.lang === 'en' ? 'PREVIEW SUBJECT' : 'පූර්ව දසුන');
             els.livePreviewWrapper.innerHTML = createTagHTML(previewSubject);
 
-            // Render Print Area
-            const pageSize = 10;
+            // Page Dimensions (mm)
+            const pSize = PAGE_SIZES[state.pageSize];
+            const pW = state.pageOrientation === 'portrait' ? pSize.w : pSize.h;
+            const pH = state.pageOrientation === 'portrait' ? pSize.h : pSize.w;
+
+            // Calculate grid layout
+            const tagW_mm = state.tagWidth * 25.4;
+            const tagH_mm = state.tagHeight * 25.4;
+            const printableW = pW - 20; // 10mm margins
+            const cols = Math.floor(printableW / tagW_mm) || 1;
+            const tagsPerPage = cols * Math.floor((pH - 20) / tagH_mm) || 1;
+
             const pages = [];
-            for (let i = 0; i < state.selectedSubjects.length; i += pageSize) {
-                pages.push(state.selectedSubjects.slice(i, i + pageSize));
+            for (let i = 0; i < state.selectedSubjects.length; i += tagsPerPage) {
+                pages.push(state.selectedSubjects.slice(i, i + tagsPerPage));
             }
 
             if (pages.length === 0) {
@@ -420,11 +536,11 @@
             } else {
                 els.emptyState.classList.add('hidden');
                 els.printArea.innerHTML = pages.map((pageTags, pageIdx) => `
-                    <div class="a4-page">
+                    <div class="page-sheet" style="width: ${pW}mm; height: ${pH}mm; grid-template-columns: repeat(${cols}, ${state.tagWidth}in);">
                         ${pageTags.map((sub, subIdx) => `
                             <div class="relative group">
                                 ${createTagHTML(sub)}
-                                <button class="no-print absolute top-1 right-1 p-1 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity" onclick="removeTag(${pageIdx * pageSize + subIdx})">
+                                <button class="no-print absolute top-1 right-1 p-1 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity" onclick="removeTag(${pageIdx * tagsPerPage + subIdx})">
                                     <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12" /></svg>
                                 </button>
                             </div>
@@ -433,7 +549,6 @@
                 `).join('');
             }
 
-            // Update Counts
             els.totalTagsCount.innerText = state.selectedSubjects.length;
             els.totalPagesCount.innerText = pages.length;
         }
